@@ -1,0 +1,10 @@
+{
+  "parametersHost": "localhost:8081",
+  "inputs": {
+      "audioInput": {
+        "ip": "192.168.1.104",
+        "port": 8081
+      }
+    },
+  "outputs": {}
+}
