@@ -1,10 +1,6 @@
 {
   "parametersHost": "localhost:11111",
   "inputs": {
-      "localInput": {
-        "ip": "127.0.0.1",
-        "port": 10070
-      },
       "localInput2": {
         "ip": "127.0.0.1",
         "port": 10071

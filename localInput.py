@@ -1,22 +1,25 @@
 # -*- coding: utf-8 -*-
 __author__ = 'kbiernat'
 
+#      "localInput": {
+#         "ip": "127.0.0.1",
+#         "port": 10070
+#       },
+
 from ComssServiceDevelopment.connectors.tcp.stream_connector import OutputStreamConnector #import modułów konektora msg_stream_connector
 from ComssServiceDevelopment.connectors.tcp.object_connector import OutputObjectConnector
 from ComssServiceDevelopment.development import DevServiceController #import modułu klasy testowego kontrolera usługi
+from audioData import audioData
 
 import pyaudio
-import struct
-import wave
-import numpy as np
+import base64
 
 service_controller = DevServiceController("configuration.json") #utworzenie obiektu kontroletra testowego, jako parametr podany jest plik konfiguracji usługi, do której "zaślepka" jest dołączana
-service_controller.declare_connection("localInput", OutputObjectConnector(service_controller)) #deklaracja interfejsu wyjściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WEJŚCIEM usługi, do której "zaślepka" jest podłączana
-service_controller.declare_connection("localInput2", OutputObjectConnector(service_controller)) #deklaracja interfejsu wyjściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WEJŚCIEM usługi, do której "zaślepka" jest podłączana
+#service_controller.declare_connection("localInput", OutputObjectConnector(service_controller)) #deklaracja interfejsu wyjściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WEJŚCIEM usługi, do której "zaślepka" jest podłączana
+service_controller.declare_connection("localInput2", OutputBinaryConnector(service_controller)) #deklaracja interfejsu wyjściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WEJŚCIEM usługi, do której "zaślepka" jest podłączana
 
 SAVE = 0.0
 TITLE = ''
-FPS = 25.0
 
 nFFT = 512
 BUF_SIZE = 4 * nFFT
@@ -42,10 +45,14 @@ def main():
                       frames_per_buffer=BUF_SIZE)
 
     # Read n*nFFT frames from stream, n > 0
-    N = max(stream.get_read_available() / nFFT, 1) * nFFT
-    data = stream.read(N)
 
-    service_controller.get_connection("localInput").send(N)
+    # data = audioData()
+    # data.N = max(stream.get_read_available() / nFFT, 1) * nFFT
+    # data.data = base64.b64encode(stream.read(data.N))
+    N = max(stream.get_read_available() / nFFT, 1) * nFFT
+    data = {"N": N, "data" : base64.b64encode(stream.read(N))}
+
+    #service_controller.get_connection("localInput").send(N)
     service_controller.get_connection("localInput2").send(data)
 
     stream.stop_stream()

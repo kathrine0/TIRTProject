@@ -8,10 +8,10 @@ from ComssServiceDevelopment.service import Service, ServiceController #import m
 
 import numpy as np
 import struct
+import base64
 
 SAVE = 0.0
 TITLE = ''
-FPS = 25.0
 
 nFFT = 512
 BUF_SIZE = 4 * nFFT
@@ -27,23 +27,25 @@ class LocalService(Service):
         self.declare_output("localOutput", OutputObjectConnector(self))
 
     def declare_inputs(self):
-        self.declare_input("localInput", InputObjectConnector(self))
+        #self.declare_input("localInput", InputObjectConnector(self))
         self.declare_input("localInput2", InputObjectConnector(self))
 
     def run(self):
-        N_input = self.get_input("localInput") #obiekt interfejsu wejściowego
-        data_input = self.get_input("localInput2") #obiekt interfejsu wejściowego
-
-        audio_output = self.get_output("localOutput") #obiekt interfejsu wyjściowego
+        #N_input = self.get_input("localInput") #obiekt interfejsu wejściowego
+        inputObj = self.get_input("localInput2") #obiekt interfejsu wejściowego
+        outputObj = self.get_output("localOutput") #obiekt interfejsu wyjściowego
 
         while self.running():
-            N = N_input.read()
-            data = data_input.read()
+
+            data_input = inputObj.read()
+
+            N = data_input["N"]
+            audioData = base64.b64decode(data_input["data"])
 
             #TODO!!!!!! Send it somehow on init
             MAX_y = 32768.0
 
-            y = np.array(struct.unpack("%dh" % (N * CHANNELS), data)) / MAX_y
+            y = np.array(struct.unpack("%dh" % (N * CHANNELS), audioData)) / MAX_y
             y_L = y[::2]
             y_R = y[1::2]
 
@@ -53,7 +55,7 @@ class LocalService(Service):
             # Sewing FFT of two channels together, DC part uses right channel's
             Y = abs(np.hstack((Y_L[-nFFT/2:-1], Y_R[:nFFT/2])))
 
-            audio_output.send(Y)
+            outputObj.send(Y)
             #print (audio_data)
 
 if __name__=="__main__":
