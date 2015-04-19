@@ -2,7 +2,6 @@
 __author__ = 'kbiernat'
 
 import threading
-from ComssServiceDevelopment.connectors.tcp.stream_connector import InputStreamConnector, OutputStreamConnector
 from ComssServiceDevelopment.connectors.tcp.object_connector import InputObjectConnector, OutputObjectConnector
 from ComssServiceDevelopment.service import Service, ServiceController #import modułów klasy bazowej Service oraz kontrolera usługi
 
@@ -27,12 +26,10 @@ class LocalService(Service):
         self.declare_output("localOutput", OutputObjectConnector(self))
 
     def declare_inputs(self):
-        #self.declare_input("localInput", InputObjectConnector(self))
-        self.declare_input("localInput2", InputObjectConnector(self))
+        self.declare_input("localInput", InputObjectConnector(self))
 
     def run(self):
-        #N_input = self.get_input("localInput") #obiekt interfejsu wejściowego
-        inputObj = self.get_input("localInput2") #obiekt interfejsu wejściowego
+        inputObj = self.get_input("localInput") #obiekt interfejsu wejściowego
         outputObj = self.get_output("localOutput") #obiekt interfejsu wyjściowego
 
         while self.running():
@@ -52,11 +49,12 @@ class LocalService(Service):
             Y_L = np.fft.fft(y_L, nFFT)
             Y_R = np.fft.fft(y_R, nFFT)
 
-            # Sewing FFT of two channels together, DC part uses right channel's
+            # Łączenie kanałów FFT, DC - prawy kanał
             Y = abs(np.hstack((Y_L[-nFFT/2:-1], Y_R[:nFFT/2])))
 
-            outputObj.send(Y)
-            #print (audio_data)
+            #output = {"freqs" : Y}
+            #outputObj.send(output)
+            print (Y)
 
 if __name__=="__main__":
     sc = ServiceController(LocalService, "configuration.json") #utworzenie obiektu kontrolera usługi
