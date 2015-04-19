@@ -37,15 +37,9 @@ def main():
                       frames_per_buffer=BUF_SIZE)
 
     # Czytaj n*nFFT ramek ze streama, n > 0
-
-    # data = audioData()
-    # data.N = max(stream.get_read_available() / nFFT, 1) * nFFT
-    # data.data = base64.b64encode(stream.read(data.N))
-    N = max(stream.get_read_available() / nFFT, 1) * nFFT
-    data = {"N": N, "data" : base64.b64encode(stream.read(N)), "MAX_y": MAX_y}
-
-    #TODO make it stop on some key input or something
     while True:
+        N = max(stream.get_read_available() / nFFT, 1) * nFFT
+        data = {"N": N, "data" : base64.b64encode(stream.read(N)), "MAX_y": MAX_y}
         service_controller.get_connection("localInput").send(data)
 
     stream.stop_stream()

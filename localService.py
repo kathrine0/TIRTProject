@@ -33,14 +33,11 @@ class LocalService(Service):
         outputObj = self.get_output("localOutput") #obiekt interfejsu wyjściowego
 
         while self.running():
-
             data_input = inputObj.read()
 
             N = data_input["N"]
             audioData = base64.b64decode(data_input["data"])
             MAX_y = data_input["MAX_y"]
-
-            print(MAX_y)
 
             y = np.array(struct.unpack("%dh" % (N * CHANNELS), audioData)) / MAX_y
             y_L = y[::2]
@@ -52,7 +49,8 @@ class LocalService(Service):
             # Łączenie kanałów FFT, DC - prawy kanał
             Y = abs(np.hstack((Y_L[-nFFT/2:-1], Y_R[:nFFT/2])))
 
-            output = list(Y)
+            #data = {"N": N, "data" : base64.b64encode(stream.read(N)), "MAX_y": MAX_y}
+            output = {"freqs": list(Y)}
             outputObj.send(output)
             #print (Y)
 
