@@ -38,9 +38,9 @@ class LocalService(Service):
 
             N = data_input["N"]
             audioData = base64.b64decode(data_input["data"])
+            MAX_y = data_input["MAX_y"]
 
-            #TODO!!!!!! Send it somehow on init
-            MAX_y = 32768.0
+            print(MAX_y)
 
             y = np.array(struct.unpack("%dh" % (N * CHANNELS), audioData)) / MAX_y
             y_L = y[::2]
@@ -52,9 +52,9 @@ class LocalService(Service):
             # Łączenie kanałów FFT, DC - prawy kanał
             Y = abs(np.hstack((Y_L[-nFFT/2:-1], Y_R[:nFFT/2])))
 
-            #output = {"freqs" : Y}
-            #outputObj.send(output)
-            print (Y)
+            output = list(Y)
+            outputObj.send(output)
+            #print (Y)
 
 if __name__=="__main__":
     sc = ServiceController(LocalService, "configuration.json") #utworzenie obiektu kontrolera usługi

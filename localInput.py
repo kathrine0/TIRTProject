@@ -42,7 +42,7 @@ def main():
     # data.N = max(stream.get_read_available() / nFFT, 1) * nFFT
     # data.data = base64.b64encode(stream.read(data.N))
     N = max(stream.get_read_available() / nFFT, 1) * nFFT
-    data = {"N": N, "data" : base64.b64encode(stream.read(N))}
+    data = {"N": N, "data" : base64.b64encode(stream.read(N)), "MAX_y": MAX_y}
 
     #TODO make it stop on some key input or something
     while True:

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'kbiernat'
 
-import base64
+import numpy as np
 
 from ComssServiceDevelopment.connectors.tcp.object_connector import InputObjectConnector
 from ComssServiceDevelopment.development import DevServiceController #import modułu klasy testowego kontrolera usługi
@@ -13,6 +13,7 @@ connection = service_controller.get_connection("localOutput")
 
 while True: #główna pętla programu
     data_input = connection.read() #odczyt danych z interfejsu wejściowego
-    freqs = (data_input["freqs"])
+    freqs = (data_input)
+
 
     print(freqs)
