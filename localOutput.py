@@ -31,6 +31,10 @@ def data_gen():
         data_input = connection.read() #odczyt danych z interfejsu wejściowego
         freqs = np.asarray(data_input["freqs"])
 
+        max_index = np.argmax(freqs)
+
+        print(np.absolute(x_f[max_index]))
+
         yield freqs
         #yield np.random.rand(10)
 
