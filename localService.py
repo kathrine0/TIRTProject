@@ -49,8 +49,7 @@ class LocalService(Service):
             # Łączenie kanałów FFT, DC - prawy kanał
             Y = abs(np.hstack((Y_L[-nFFT/2:-1], Y_R[:nFFT/2])))
 
-            #data = {"N": N, "data" : base64.b64encode(stream.read(N)), "MAX_y": MAX_y}
-            output = {"freqs": list(Y)}
+            output = {"db_table": list(Y)}
             outputObj.send(output)
             #print (Y)
 
