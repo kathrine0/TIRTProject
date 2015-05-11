@@ -3,16 +3,12 @@ __author__ = 'kbiernat'
 
 from ComssServiceDevelopment.connectors.tcp.object_connector import OutputObjectConnector
 from ComssServiceDevelopment.development import DevServiceController #import modułu klasy testowego kontrolera usługi
-from audioData import audioData
 
 import pyaudio
 import base64
 
 service_controller = DevServiceController("configuration.json") #utworzenie obiektu kontroletra testowego, jako parametr podany jest plik konfiguracji usługi, do której "zaślepka" jest dołączana
 service_controller.declare_connection("localInput", OutputObjectConnector(service_controller)) #deklaracja interfejsu wyjściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WEJŚCIEM usługi, do której "zaślepka" jest podłączana
-
-SAVE = 0.0
-TITLE = ''
 
 nFFT = 512
 BUF_SIZE = 4 * nFFT

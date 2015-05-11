@@ -4,7 +4,6 @@ __author__ = 'kbiernat'
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-#https://code.google.com/p/midiutil/
 
 from ComssServiceDevelopment.connectors.tcp.object_connector import InputObjectConnector
 from ComssServiceDevelopment.development import DevServiceController #import modułu klasy testowego kontrolera usługi

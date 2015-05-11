@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 __author__ = 'kbiernat'
 
-import threading
+#import modułów klasy bazowej Service oraz kontrolera usługi
 from ComssServiceDevelopment.connectors.tcp.object_connector import InputObjectConnector, OutputObjectConnector
-from ComssServiceDevelopment.service import Service, ServiceController #import modułów klasy bazowej Service oraz kontrolera usługi
+from ComssServiceDevelopment.service import Service, ServiceController
+
+#https://code.google.com/p/midiutil/
+from midiutil.MidiFile import MIDIFile
 
 import numpy as np
 import struct
@@ -30,38 +33,57 @@ class LocalService(Service):
         outputObj = self.get_output("localOutput") #obiekt interfejsu wyjściowego
         prev_note = 0
 
-        while self.running():
-            data_input = inputObj.read()
+        #init midi
+        track = 0
+        time = 0
+        MyMIDI = MIDIFile(1)
+        MyMIDI.addTrackName(track,time,"Sample Track")
+        MyMIDI.addTempo(track,time,120)
 
-            N = data_input["N"]
-            audioData = base64.b64decode(data_input["data"])
-            MAX_y = data_input["MAX_y"]
+        try:
+            while self.running():
+                data_input = inputObj.read()
 
-            y = np.array(struct.unpack("%dh" % (N * CHANNELS), audioData)) / MAX_y
-            y_L = y[::2]
-            y_R = y[1::2]
 
-            Y_L = np.fft.fft(y_L, nFFT)
-            Y_R = np.fft.fft(y_R, nFFT)
+                N = data_input["N"]
+                audioData = base64.b64decode(data_input["data"])
+                MAX_y = data_input["MAX_y"]
 
-            # Łączenie kanałów FFT, DC - prawy kanał
-            Y = abs(np.hstack((Y_L[-nFFT/2:-1], Y_R[:nFFT/2])))
+                y = np.array(struct.unpack("%dh" % (N * CHANNELS), audioData)) / MAX_y
+                y_L = y[::2]
+                y_R = y[1::2]
 
-            samples = np.fromstring(audioData, dtype=np.int16)
+                Y_L = np.fft.fft(y_L, nFFT)
+                Y_R = np.fft.fft(y_R, nFFT)
 
-            #wyliczenie dzwieku
-            rawnote = analyse.musical_detect_pitch(samples)
+                # Łączenie kanałów FFT, DC - prawy kanał
+                Y = abs(np.hstack((Y_L[-nFFT/2:-1], Y_R[:nFFT/2])))
 
-            if rawnote is not None:
-                note = np.rint(rawnote)
+                samples = np.fromstring(audioData, dtype=np.int16)
 
-                if note != prev_note:
-                    print note
-                    prev_note = note
+                #wyliczenie dzwieku
+                rawnote = analyse.musical_detect_pitch(samples)
 
-            output = {"db_table": list(Y)}
-            outputObj.send(output)
-            #print (Y)
+                if rawnote is not None:
+                    note = np.rint(rawnote)
+
+                    if note != prev_note:
+                        print note
+
+                        #MyMIDI.addNote(track,channel,pitch,time,duration,volume)
+                        MyMIDI.addNote(0,0,note,time,1,100)
+                        time+=1
+                        prev_note = note
+
+                output = {"db_table": list(Y)}
+                outputObj.send(output)
+
+        #save midi on exit
+        except:
+            binfile = open("output.mid", 'wb')
+            MyMIDI.writeFile(binfile)
+            binfile.close()
+
 
 if __name__=="__main__":
     sc = ServiceController(LocalService, "configuration.json") #utworzenie obiektu kontrolera usługi
