@@ -4,7 +4,6 @@ __author__ = 'kbiernat'
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from midiutil.MidiFile import MIDIFile
 #https://code.google.com/p/midiutil/
 
 from ComssServiceDevelopment.connectors.tcp.object_connector import InputObjectConnector
@@ -39,34 +38,11 @@ def data_gen():
         data_input = connection.read() #odczyt danych z interfejsu wejściowego
         db_table = np.asarray(data_input["db_table"])
 
-        half_db_table = db_table[1::2] #pozbycie się ujemnych wartości
-        max_index = np.argmax(half_db_table)
-
-        #powyżej progu szumu
-        if half_db_table[max_index] > background_noise:
-
-            #wyliczenie dźwięku
-            freq = np.absolute(half_x_f[max_index])
-            note = frequencyToNote(freq)
-
-            if note != prev_note :
-                #print(note)
-                print freq
-                prev_note = note
-
         yield db_table
-        #yield np.random.rand(10)
-
 
 def animate(db_table):
     line.set_ydata(db_table)
     return line,
-
-def frequencyToNote(freq):
-    if freq == 0:
-        return 0
-    note = np.rint((12 * np.log2(freq/440)) + 49)
-    return note;
 
 def init():
     # Czyszczenie

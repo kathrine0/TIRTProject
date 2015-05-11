@@ -8,15 +8,12 @@ from ComssServiceDevelopment.service import Service, ServiceController #import m
 import numpy as np
 import struct
 import base64
-
-SAVE = 0.0
-TITLE = ''
+import analyse
 
 nFFT = 512
 BUF_SIZE = 4 * nFFT
 CHANNELS = 2
 RATE = 44100
-
 
 class LocalService(Service):
     def __init__(self): #"nie"konstruktor, inicjalizator obiektu usługi
@@ -31,6 +28,7 @@ class LocalService(Service):
     def run(self):
         inputObj = self.get_input("localInput") #obiekt interfejsu wejściowego
         outputObj = self.get_output("localOutput") #obiekt interfejsu wyjściowego
+        prev_note = 0
 
         while self.running():
             data_input = inputObj.read()
@@ -48,6 +46,18 @@ class LocalService(Service):
 
             # Łączenie kanałów FFT, DC - prawy kanał
             Y = abs(np.hstack((Y_L[-nFFT/2:-1], Y_R[:nFFT/2])))
+
+            samples = np.fromstring(audioData, dtype=np.int16)
+
+            #wyliczenie dzwieku
+            rawnote = analyse.musical_detect_pitch(samples)
+
+            if rawnote is not None:
+                note = np.rint(rawnote)
+
+                if note != prev_note:
+                    print note
+                    prev_note = note
 
             output = {"db_table": list(Y)}
             outputObj.send(output)
