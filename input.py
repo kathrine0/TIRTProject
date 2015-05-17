@@ -8,7 +8,7 @@ import pyaudio
 import base64
 
 service_controller = DevServiceController("configuration.json") #utworzenie obiektu kontroletra testowego, jako parametr podany jest plik konfiguracji usługi, do której "zaślepka" jest dołączana
-service_controller.declare_connection("localInput", OutputObjectConnector(service_controller)) #deklaracja interfejsu wyjściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WEJŚCIEM usługi, do której "zaślepka" jest podłączana
+service_controller.declare_connection("input", OutputObjectConnector(service_controller)) #deklaracja interfejsu wyjściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WEJŚCIEM usługi, do której "zaślepka" jest podłączana
 
 nFFT = 512
 BUF_SIZE = 4 * nFFT
@@ -36,7 +36,7 @@ def main():
     while True:
         N = max(stream.get_read_available() / nFFT, 1) * nFFT
         data = {"N": N, "data" : base64.b64encode(stream.read(N)), "MAX_y": MAX_y}
-        service_controller.get_connection("localInput").send(data)
+        service_controller.get_connection("input").send(data)
 
     stream.stop_stream()
     stream.close()

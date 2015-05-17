@@ -1,15 +1,19 @@
 {
   "parametersHost": "localhost:11111",
   "inputs": {
-      "localInput": {
+      "input": {
         "ip": "127.0.0.1",
         "port": 10071
       }
     },
   "outputs": {
-      "localOutput": {
+      "outputGraph": {
         "ip": "127.0.0.1",
         "port": 10072
+      },
+      "outputPitch": {
+        "ip": "127.0.0.1",
+        "port": 10073
       }
   }
 }

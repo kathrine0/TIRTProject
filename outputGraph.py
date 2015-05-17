@@ -19,9 +19,9 @@ background_noise = 0.5
 current_note = 0
 
 service_controller = DevServiceController("configuration.json") #utworzenie obiektu kontroletra testowego, jako parametr podany jest plik konfiguracji usługi, do której "zaślepka" jest dołączana
-service_controller.declare_connection("localOutput", InputObjectConnector(service_controller)) #deklaracja interfejsu wejściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WYJŚCIEM usługi, do której "zaślepka" jest podłączana
+service_controller.declare_connection("outputGraph", InputObjectConnector(service_controller)) #deklaracja interfejsu wejściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WYJŚCIEM usługi, do której "zaślepka" jest podłączana
 
-connection = service_controller.get_connection("localOutput")
+connection = service_controller.get_connection("outputGraph")
 
 fig = plt.figure()
 #zakres częstotliwości

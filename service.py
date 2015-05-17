@@ -23,14 +23,16 @@ class LocalService(Service):
         super(LocalService, self).__init__() #wywołanie metody inicjalizatora klasy nadrzędnej
 
     def declare_outputs(self):
-        self.declare_output("localOutput", OutputObjectConnector(self))
+        self.declare_output("outputGraph", OutputObjectConnector(self))
+        self.declare_output("outputPitch", OutputObjectConnector(self))
 
     def declare_inputs(self):
-        self.declare_input("localInput", InputObjectConnector(self))
+        self.declare_input("input", InputObjectConnector(self))
 
     def run(self):
-        inputObj = self.get_input("localInput") #obiekt interfejsu wejściowego
-        outputObj = self.get_output("localOutput") #obiekt interfejsu wyjściowego
+        inputObj = self.get_input("input") #obiekt interfejsu wejściowego
+        outputGraph = self.get_output("outputGraph") #obiekt interfejsu wyjściowego
+        outputPitch = self.get_output("outputPitch") #obiekt interfejsu wyjściowego
         prev_note = 0
 
         #init midi
@@ -43,7 +45,6 @@ class LocalService(Service):
         try:
             while self.running():
                 data_input = inputObj.read()
-
 
                 N = data_input["N"]
                 audioData = base64.b64decode(data_input["data"])
@@ -68,7 +69,8 @@ class LocalService(Service):
                     note = np.rint(rawnote)
 
                     if note != prev_note:
-                        print note
+                        #wyślij nutę na wyjście
+                        outputPitch.send(note)
 
                         #MyMIDI.addNote(track,channel,pitch,time,duration,volume)
                         MyMIDI.addNote(0,0,note,time,1,100)
@@ -76,7 +78,7 @@ class LocalService(Service):
                         prev_note = note
 
                 output = {"db_table": list(Y)}
-                outputObj.send(output)
+                outputGraph.send(output)
 
         #save midi on exit
         except:
