@@ -10,7 +10,7 @@ import base64
 service_controller = DevServiceController("configuration.json") #utworzenie obiektu kontroletra testowego, jako parametr podany jest plik konfiguracji usługi, do której "zaślepka" jest dołączana
 service_controller.declare_connection("input", OutputObjectConnector(service_controller)) #deklaracja interfejsu wyjściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WEJŚCIEM usługi, do której "zaślepka" jest podłączana
 
-nFFT = 512
+nFFT = 1024
 BUF_SIZE = 4 * nFFT
 FORMAT = pyaudio.paInt16
 CHANNELS = 2

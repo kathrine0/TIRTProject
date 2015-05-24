@@ -11,7 +11,7 @@ from ComssServiceDevelopment.development import DevServiceController #import mod
 TITLE = 'Analiza spektrum'
 FPS = 25.0
 
-nFFT = 512
+nFFT = 1024
 RATE = 44100
 
 #próg szumu

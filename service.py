@@ -13,8 +13,7 @@ import struct
 import base64
 import analyse
 
-nFFT = 512
-BUF_SIZE = 4 * nFFT
+nFFT = 1024
 CHANNELS = 2
 RATE = 44100
 
@@ -68,9 +67,10 @@ class LocalService(Service):
                 if rawnote is not None:
                     note = np.rint(rawnote)
 
+                    #wyślij nutę na wyjście
+                    outputPitch.send(note)
+
                     if note != prev_note:
-                        #wyślij nutę na wyjście
-                        outputPitch.send(note)
 
                         #MyMIDI.addNote(track,channel,pitch,time,duration,volume)
                         MyMIDI.addNote(0,0,note,time,1,100)

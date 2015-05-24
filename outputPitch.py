@@ -20,15 +20,17 @@ class App():
         self.connection = service_controller.get_connection("outputPitch")
 
         self.root = tk.Tk()
-        self.label = tk.Label(text="", font=("Helvetica", 40))
+        self.root.geometry("200x200")
+        self.label = tk.Label(text="", font=("Helvetica", 40), width=150)
         self.label.pack()
         self.update_note()
         self.root.mainloop()
 
+
     def update_note(self):
         note = self.connection.read() #odczyt danych z interfejsu wejściowego
         self.label.configure(text=self.midi_to_note(note))
-        self.root.after(10, self.update_note)
+        self.root.after(100, self.update_note)
 
     def midi_to_note(self, note):
 
