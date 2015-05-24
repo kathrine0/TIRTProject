@@ -7,7 +7,7 @@ from ComssServiceDevelopment.connectors.tcp.object_connector import InputObjectC
 from ComssServiceDevelopment.development import DevServiceController #import modułu klasy testowego kontrolera usługi
 
 service_controller = DevServiceController("configuration.json") #utworzenie obiektu kontroletra testowego, jako parametr podany jest plik konfiguracji usługi, do której "zaślepka" jest dołączana
-service_controller.declare_connection("outputPitch", InputObjectConnector(service_controller)) #deklaracja interfejsu wejściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WYJŚCIEM usługi, do której "zaślepka" jest podłączana
+service_controller.declare_connection("pitchOutput", InputObjectConnector(service_controller)) #deklaracja interfejsu wejściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WYJŚCIEM usługi, do której "zaślepka" jest podłączana
 
 # while True:
 #     note = connection.read() #odczyt danych z interfejsu wejściowego
@@ -17,7 +17,7 @@ service_controller.declare_connection("outputPitch", InputObjectConnector(servic
 class App():
 
     def __init__(self):
-        self.connection = service_controller.get_connection("outputPitch")
+        self.connection = service_controller.get_connection("pitchOutput")
 
         self.root = tk.Tk()
         self.root.geometry("200x200")
@@ -25,7 +25,6 @@ class App():
         self.label.pack()
         self.update_note()
         self.root.mainloop()
-
 
     def update_note(self):
         note = self.connection.read() #odczyt danych z interfejsu wejściowego

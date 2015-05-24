@@ -5,87 +5,37 @@ __author__ = 'kbiernat'
 from ComssServiceDevelopment.connectors.tcp.object_connector import InputObjectConnector, OutputObjectConnector
 from ComssServiceDevelopment.service import Service, ServiceController
 
-#https://code.google.com/p/midiutil/
-from midiutil.MidiFile import MIDIFile
-
-import numpy as np
-import struct
-import base64
-import analyse
-
-nFFT = 1024
-CHANNELS = 2
-RATE = 44100
+import threading
 
 class LocalService(Service):
     def __init__(self): #"nie"konstruktor, inicjalizator obiektu usługi
         super(LocalService, self).__init__() #wywołanie metody inicjalizatora klasy nadrzędnej
 
     def declare_outputs(self):
-        self.declare_output("outputGraph", OutputObjectConnector(self))
-        self.declare_output("outputPitch", OutputObjectConnector(self))
+        self.declare_output("graphOutput", OutputObjectConnector(self))
+        self.declare_output("pitchOutput", OutputObjectConnector(self))
 
     def declare_inputs(self):
-        self.declare_input("input", InputObjectConnector(self))
+        self.declare_input("graphInput", InputObjectConnector(self))
+        self.declare_input("pitchInput", InputObjectConnector(self))
 
     def run(self):
-        inputObj = self.get_input("input") #obiekt interfejsu wejściowego
-        outputGraph = self.get_output("outputGraph") #obiekt interfejsu wyjściowego
-        outputPitch = self.get_output("outputPitch") #obiekt interfejsu wyjściowego
-        prev_note = 0
+        threading.Thread(target=self.watch_graph).start()
+        threading.Thread(target=self.watch_pitch).start()
 
-        #init midi
-        track = 0
-        time = 0
-        MyMIDI = MIDIFile(1)
-        MyMIDI.addTrackName(track,time,"Sample Track")
-        MyMIDI.addTempo(track,time,120)
+    def watch_graph(self):
+        graphInput = self.get_input("graphInput") #obiekt interfejsu wejściowego
+        outputGraph = self.get_output("graphOutput") #obiekt interfejsu wyjściowego
+        while True:
+            graph = graphInput.read()
+            outputGraph.send(graph)
 
-        try:
-            while self.running():
-                data_input = inputObj.read()
-
-                N = data_input["N"]
-                audioData = base64.b64decode(data_input["data"])
-                MAX_y = data_input["MAX_y"]
-
-                y = np.array(struct.unpack("%dh" % (N * CHANNELS), audioData)) / MAX_y
-                y_L = y[::2]
-                y_R = y[1::2]
-
-                Y_L = np.fft.fft(y_L, nFFT)
-                Y_R = np.fft.fft(y_R, nFFT)
-
-                # Łączenie kanałów FFT, DC - prawy kanał
-                Y = abs(np.hstack((Y_L[-nFFT/2:-1], Y_R[:nFFT/2])))
-
-                samples = np.fromstring(audioData, dtype=np.int16)
-
-                #wyliczenie dzwieku
-                rawnote = analyse.musical_detect_pitch(samples)
-
-                if rawnote is not None:
-                    note = np.rint(rawnote)
-
-                    #wyślij nutę na wyjście
-                    outputPitch.send(note)
-
-                    if note != prev_note:
-
-                        #MyMIDI.addNote(track,channel,pitch,time,duration,volume)
-                        MyMIDI.addNote(0,0,note,time,1,100)
-                        time+=1
-                        prev_note = note
-
-                output = {"db_table": list(Y)}
-                outputGraph.send(output)
-
-        #save midi on exit
-        except:
-            binfile = open("output.mid", 'wb')
-            MyMIDI.writeFile(binfile)
-            binfile.close()
-
+    def watch_pitch(self):
+        pitchInput = self.get_input("pitchInput") #obiekt interfejsu wejściowego
+        outputPitch = self.get_output("pitchOutput") #obiekt interfejsu wyjściowego
+        while True:
+            pitch = pitchInput.read()
+            outputPitch.send(pitch)
 
 if __name__=="__main__":
     sc = ServiceController(LocalService, "configuration.json") #utworzenie obiektu kontrolera usługi

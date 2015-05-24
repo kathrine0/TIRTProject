@@ -11,7 +11,7 @@ from ComssServiceDevelopment.development import DevServiceController #import mod
 TITLE = 'Analiza spektrum'
 FPS = 25.0
 
-nFFT = 1024
+nFFT = 4086
 RATE = 44100
 
 #próg szumu
@@ -19,9 +19,9 @@ background_noise = 0.5
 current_note = 0
 
 service_controller = DevServiceController("configuration.json") #utworzenie obiektu kontroletra testowego, jako parametr podany jest plik konfiguracji usługi, do której "zaślepka" jest dołączana
-service_controller.declare_connection("outputGraph", InputObjectConnector(service_controller)) #deklaracja interfejsu wejściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WYJŚCIEM usługi, do której "zaślepka" jest podłączana
+service_controller.declare_connection("graphOutput", InputObjectConnector(service_controller)) #deklaracja interfejsu wejściowego konektora msg_stream_connector, należy zwrócić uwagę, iż identyfikator musi być zgodny z WYJŚCIEM usługi, do której "zaślepka" jest podłączana
 
-connection = service_controller.get_connection("outputGraph")
+connection = service_controller.get_connection("graphOutput")
 
 fig = plt.figure()
 #zakres częstotliwości
@@ -35,7 +35,7 @@ def data_gen():
     prev_note = 0
     while True:
         data_input = connection.read() #odczyt danych z interfejsu wejściowego
-        db_table = np.asarray(data_input["db_table"])
+        db_table = np.asarray(data_input)
 
         yield db_table
 
